@@ -13,3 +13,4 @@
 **/*.exe
 rust_benchmark/target
 .DS_Store
+myenv
