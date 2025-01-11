@@ -105,8 +105,8 @@ async function eventDrivenTest(iterations, threadCount) {
 }
 
 (async () => {
-  const iterations = 100; // 每个线程的任务数
-  const threadCount = 8; // 线程数
+  const iterations = 30; // 每个线程的任务数
+  const threadCount = 50; // 线程数
 
   console.log("Running single-threaded test...");
   await singleThreadTest(iterations, threadCount);

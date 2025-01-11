@@ -5,8 +5,8 @@ class Program
 {
     static void Main(string[] args)
     {
-        const int iterations = 100; // 每个线程的任务数
-        const int threadCount = 8;  // 线程数
+        const int iterations = 30; // 每个线程的任务数
+        const int threadCount = 50;  // 线程数
 
         Console.WriteLine("Running single-threaded test...");
         SingleThreadTest(iterations, threadCount);

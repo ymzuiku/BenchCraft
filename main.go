@@ -113,8 +113,8 @@ func executeTask(i int) {
 }
 
 func main() {
-	const iterations = 100  // 每个线程的任务数
-	const threadCount = 8   // 线程数
+	const iterations = 30  // 每个线程的任务数
+	const threadCount = 50   // 线程数
 
 	fmt.Println("Running single-threaded test...")
 	singleThreadTest(iterations, threadCount)

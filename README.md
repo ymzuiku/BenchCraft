@@ -25,9 +25,13 @@ Each test is executed in both single-threaded and multi-threaded (or event-drive
 
 ### Single-threaded Test
 
+150 times of tasks
+
 - Executes tasks sequentially within a single thread for a fixed number of iterations and threads.
 
 ### Multi-threaded Test
+
+Task count: 30, Thread count: 50
 
 - For Go and C#, tasks are executed in parallel using native multithreading mechanisms (e.g., Goroutines in Go, `Task.Run` in C#).
 - For Bun.js and Node.js, concurrency is simulated using asynchronous programming (event loop). Node.js is not natively multithreaded but uses an event-driven, non-blocking I/O model.
@@ -38,10 +42,10 @@ Windows 10, CPU: AMD Ryzen 9 9950X, RAM: 96GB
 
 | Language | Version                | Single-threaded Output | Multi-threaded/Event-driven Output |
 | -------- | ---------------------- | ---------------------- | ---------------------------------- |
-| Go       | go1.23.4 windows/amd64 | 1583 ms                | 343 ms                             |
-| C#       | 9.0.101                | 1781 ms                | 241 ms                             |
-| Bun.js   | 1.1.43                 | 2150 ms                | 2133 ms                            |
-| Node.js  | v23.5.0                | 2663 ms                | 2635 ms                            |
+| Go       | go1.23.4 windows/amd64 | 2950 ms                | 349 ms                             |
+| C#       | 9.0.101                | 3212 ms                | 258 ms                             |
+| Bun.js   | 1.1.43                 | 3947 ms                | 3956 ms                            |
+| Node.js  | v23.5.0                | 4876 ms                | 4901 ms                            |
 
 ## Important Notes on Node.js
 
