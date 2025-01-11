@@ -5,27 +5,38 @@ const {
   workerData,
 } = require("worker_threads");
 const fs = require("fs");
+const os = require("os");
+
+// 打印内存使用
+function printMemoryUsage(label) {
+  const memoryUsage = process.memoryUsage();
+  console.log(
+    `${label} Memory Usage: RSS = ${(memoryUsage.rss / 1024 / 1024).toFixed(
+      2
+    )} MB, HeapUsed = ${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB`
+  );
+}
 
 // 执行任务逻辑
-function executeTask(i) {
-  let result = 0.0;
+function executeTask(id) {
+  // 1. 数学计算任务
+  let mathResult = 0.0;
   for (let j = 1; j <= 100; j++) {
-    result +=
-      Math.sqrt(j) +
-      Math.sin(j) * Math.cos(j) +
-      Math.log(j + 1) / Math.tan(j + 0.1);
-    result *= Math.exp(-j % 5) + Math.atan(j / 10.0);
+    mathResult += Math.sqrt(j) + Math.pow(j, 1.8) + Math.sin(j) * Math.cos(j);
+    mathResult *= Math.exp(-j / 100.0) + Math.tan(j / 50.0);
   }
 
-  const size = 100;
-  const matrixA = Array.from({ length: size }, (_, x) =>
-    Array.from({ length: size }, (_, y) => Math.sin(x + y))
-  );
-  const matrixB = Array.from({ length: size }, (_, x) =>
-    Array.from({ length: size }, (_, y) => Math.cos(x - y))
-  );
+  // 2. 大规模矩阵运算 (200x200)
+  const size = 200;
+  const matrixA = Array.from({ length: size }, () => Array(size).fill(0));
+  const matrixB = Array.from({ length: size }, () => Array(size).fill(0));
   const matrixResult = Array.from({ length: size }, () => Array(size).fill(0));
-
+  for (let x = 0; x < size; x++) {
+    for (let y = 0; y < size; y++) {
+      matrixA[x][y] = Math.sin(x + y) * Math.cos(x - y);
+      matrixB[x][y] = Math.exp(-(x * y) / 500.0) + Math.tan(y + 1);
+    }
+  }
   for (let x = 0; x < size; x++) {
     for (let y = 0; y < size; y++) {
       for (let k = 0; k < size; k++) {
@@ -34,117 +45,111 @@ function executeTask(i) {
     }
   }
 
-  let specialResult = 0.0;
-  for (let j = 1; j <= 50; j++) {
-    specialResult +=
-      Math.sqrt(j) * Math.sin(j) * Math.log10(j + 1) +
-      Math.exp(-j) * Math.cos(Math.tan(j));
+  // 3. 字符串拼接与处理
+  let largeString = "";
+  for (let j = 0; j < 500; j++) {
+    largeString += `Task-${id}-Line-${j};`;
+  }
+  const processedString = largeString.replace(/Line/g, "ProcessedLine");
+
+  // 4. 集合操作
+  const dataSet = new Set();
+  for (let j = 0; j < 500; j++) {
+    dataSet.add(j);
+  }
+  for (let j = 0; j < 500; j++) {
+    dataSet.has(j);
   }
 
+  // 5. 排序与查找
+  const array = Array.from({ length: 200 }, () =>
+    Math.floor(Math.random() * 1000000)
+  );
+  array.sort((a, b) => a - b);
+  const target = Math.floor(Math.random() * 1000000);
+  array.findIndex((value) => value >= target);
+
+  // 6. JSON 处理
   const jsonObject = {
-    Id: i,
-    Name: `Test-${i}`,
-    Data: {
-      MatrixSum: specialResult,
-      Result: result,
-      Details: [
-        { Index: 1, Value: matrixResult[0][0] },
-        { Index: 2, Value: matrixResult[1][1] },
-      ],
-    },
-    AdditionalData: [],
+    Id: id,
+    MathResult: mathResult,
+    MatrixSample: [matrixResult[0][0], matrixResult[1][1], matrixResult[2][2]],
+    ProcessedString: processedString.slice(0, 100),
   };
+  const jsonData = JSON.stringify(jsonObject);
 
-  for (let k = 0; k < 30; k++) {
-    jsonObject.AdditionalData.push({
-      Index: k,
-      Value: k * 2,
-    });
-  }
-
-  const jsonString = JSON.stringify(jsonObject);
-  const fileName = `temp_file_${i}.json`;
-
-  fs.writeFileSync(fileName, jsonString, "utf-8");
-  const fileContent = fs.readFileSync(fileName, "utf-8");
+  // 7. 文件操作
+  const fileName = `task_output_${id}.json`;
+  fs.writeFileSync(fileName, jsonData);
+  const fileContent = fs.readFileSync(fileName, "utf8");
   fs.unlinkSync(fileName);
-
   JSON.parse(fileContent);
 }
 
-// 打印内存消耗
-function printMemoryUsage(prefix) {
-  const used = process.memoryUsage();
-  console.log(
-    `${prefix} Memory Usage:`,
-    `RSS: ${(used.rss / 1024 / 1024).toFixed(2)} MB,`,
-    `Heap Total: ${(used.heapTotal / 1024 / 1024).toFixed(2)} MB,`,
-    `Heap Used: ${(used.heapUsed / 1024 / 1024).toFixed(2)} MB`
-  );
-}
+// 单线程执行
+function singleThreadTest(iterations, threadCount) {
+  printMemoryUsage("Before Single-threaded Test");
+  const startTime = Date.now();
 
-// Worker 线程任务
-function workerTask({ iterations, startIndex }) {
-  for (let i = 0; i < iterations; i++) {
-    executeTask(startIndex + i);
+  for (let threadIndex = 0; threadIndex < threadCount; threadIndex++) {
+    for (let i = 0; i < iterations; i++) {
+      executeTask(i);
+    }
   }
-  parentPort.postMessage("done");
+
+  const endTime = Date.now();
+  console.log(`Single-threaded computation time: ${endTime - startTime} ms`);
+  printMemoryUsage("After Single-threaded Test");
 }
 
 // 多线程执行
-async function multiThreadTest(iterations, threadCount) {
-  const start = performance.now();
+function multiThreadTest(iterations, threadCount) {
+  printMemoryUsage("Before Multi-threaded Test");
+  const startTime = Date.now();
+
   const workers = [];
+  let completedWorkers = 0;
 
-  for (let threadIndex = 0; threadIndex < threadCount; threadIndex++) {
-    const workerData = { iterations, startIndex: threadIndex * iterations };
+  return new Promise((resolve) => {
+    for (let threadIndex = 0; threadIndex < threadCount; threadIndex++) {
+      const worker = new Worker(__filename, {
+        workerData: { iterations, threadIndex },
+      });
 
-    workers.push(
-      new Promise((resolve, reject) => {
-        const worker = new Worker(__filename, { workerData });
+      workers.push(worker);
 
-        worker.on("message", (msg) => {
-          if (msg === "done") resolve();
-        });
-        worker.on("error", reject);
-        worker.on("exit", (code) => {
-          if (code !== 0) reject(new Error(`Worker exited with code ${code}`));
-        });
-      })
-    );
-  }
-
-  await Promise.all(workers);
-
-  const end = performance.now();
-  printMemoryUsage("After Multi-threaded Test");
-  console.log(`Multi-threaded computation time: ${end - start}ms`);
+      worker.on("exit", () => {
+        completedWorkers++;
+        if (completedWorkers === threadCount) {
+          const endTime = Date.now();
+          console.log(
+            `Multi-threaded computation time: ${endTime - startTime} ms`
+          );
+          printMemoryUsage("After Multi-threaded Test");
+          resolve();
+        }
+      });
+    }
+  });
 }
 
-// 主线程逻辑
-if (isMainThread) {
-  (async () => {
-    const iterations = 30; // 每个线程的任务数
-    const threadCount = 50; // 线程数
-
-    console.log("Running single-threaded test...");
-    printMemoryUsage("Before Single-threaded Test");
-    const startSingle = performance.now();
-    for (let threadIndex = 0; threadIndex < threadCount; threadIndex++) {
-      for (let i = 0; i < iterations; i++) {
-        executeTask(i);
-      }
-    }
-    const endSingle = performance.now();
-    printMemoryUsage("After Single-threaded Test");
-    console.log(
-      `Single-threaded computation time: ${endSingle - startSingle}ms`
-    );
-
-    console.log("\nRunning multi-threaded test...");
-    printMemoryUsage("Before Multi-threaded Test");
-    await multiThreadTest(iterations, threadCount);
-  })();
+// Worker线程逻辑
+if (!isMainThread) {
+  const { iterations, threadIndex } = workerData;
+  for (let i = 0; i < iterations; i++) {
+    executeTask(threadIndex * iterations + i);
+  }
+  parentPort.postMessage({ status: "done" });
 } else {
-  workerTask(workerData);
+  // 主线程逻辑
+  const iterations = 20; // 每个线程的任务数
+  const threadCount = 20; // 线程数
+
+  console.log("Running single-threaded test...");
+  singleThreadTest(iterations, threadCount);
+
+  console.log("\nRunning multi-threaded test...");
+  multiThreadTest(iterations, threadCount).then(() => {
+    console.log("All tasks completed.");
+  });
 }

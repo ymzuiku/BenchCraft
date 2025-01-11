@@ -1,6 +1,6 @@
-# Performance Test for Go, Bun.js, Node.js, Rust, and C#
+# Performance Test for Go, Bun.js, Node.js, Rust, Python and C#
 
-This performance test evaluates the execution time and resource utilization of computationally intensive tasks across five programming environments: Go, Bun.js, Node.js, Rust, and C#. It examines both single-threaded and multi-threaded (or simulated concurrency) scenarios to compare the efficiency, runtime behavior, and memory usage of each language.
+This performance test evaluates the execution time and resource utilization of computationally intensive tasks across five programming environments: Go, Bun.js, Node.js, Rust, Python and C#. It examines both single-threaded and multi-threaded (or simulated concurrency) scenarios to compare the efficiency, runtime behavior, and memory usage of each language.
 
 ## Test Description
 
@@ -50,21 +50,40 @@ Hardware: AMD Ryzen 9 9950X CPU, 96GB RAM
 
 ### Commands and Outputs
 
-| Language | Version                | Single-threaded/Memory | Multi-threaded/Memory | GC Count |
-| -------- | ---------------------- | ---------------------- | --------------------- | -------- |
-| C#       | 9.0.101                | 4326 ms, 50 MB         | 345 ms, 60 MB         | 46       |
-| Go       | go1.23.4 windows/amd64 | 4138 ms, 11.89 MB      | 429 ms, 45 MB         | 150      |
-| Rust     | rustc 1.84.0 + tokio   | 5848 ms, 33.86 MB      | 444 ms, 33.88 MB      | 0        |
-| Node.js  | v23.5.0                | 6030 ms, 73 MB         | 866 ms, 104 MB        | ?        |
-| Bun.js   | 1.1.43                 | 5135 ms, 37 MB         | 1644 ms, 37 MB        | ?        |
+| Language | Version                | Single-threaded/Memory | Multi-threaded/Memory |
+| -------- | ---------------------- | ---------------------- | --------------------- |
+| C#       | 9.0.101                | 7429 ms, 34 MB         | 632 ms, 77 MB         |
+| Go       | go1.23.4 windows/amd64 | 7301 ms, 11.89 MB      | 649 ms, 56 MB         |
+| Rust     | rustc 1.84.0 + tokio   | 7505 ms, 93.86 MB      | 542 ms, 93.88 MB      |
+| Node.js  | v23.5.0                | 8885 ms, 73 MB         | 905 ms, 82 MB         |
+| Bun.js   | 1.1.43                 | 7850 ms, 189 MB        | 1398 ms, 914 MB       |
+| Python   | Python 3.12.8          | 95084 ms, 22 MB        | 95267 ms, 54 MB       |
 
 ### Observations
 
-- C#: Exhibited exceptional multi-threaded performance with the lowest execution time in multi-threaded tasks.
-- Go: Delivered consistent performance with low memory usage and efficient garbage collection.
-- Rust: Despite its reputation for high performance, Rust's results in release mode were not as competitive as expected in this benchmark. This could be due to the nature of the test tasks, the overhead of the Tokio runtime, or differences in optimization for these specific workloads.
-- Node.js: As an event-driven, single-threaded runtime, Node.js lags in computational tasks due to limited parallel execution.
-- Bun.js: Demonstrated improved single-threaded performance over Node.js, but multi-threading performance is less optimized compared to Go or C#.
+1. **Minimal Differences in Single-Threaded Performance**
+
+   - C#, Go, and Rust have single-threaded execution times within 200 milliseconds of each other, which is negligible. Even Node.js and Bun.js, while slightly slower, differ by less than 1000 milliseconds.
+   - For non-real-time applications, these differences are unlikely to impact user experience significantly.
+
+2. **Converging Multi-Threaded Performance**
+
+   - The multi-threaded performance of C#, Go, and Rust ranges between 500-650 milliseconds, showing only minimal variation.
+   - While Node.js and Bun.js are slightly less efficient in multi-threaded tasks, their performance is still adequate for most scenarios, particularly if the tasks are not computation-heavy.
+
+3. **Memory Usage Differences Are Insignificant**
+
+   - Apart from Bun.js, which shows a spike in memory usage in multi-threaded mode, the other languages exhibit reasonable memory consumption. On modern hardware, such differences are unlikely to be a bottleneck.
+
+### Why Are They So Similar?
+
+- **Modern Hardware**: The test environment (Ryzen 9 9950X + 96GB RAM) provides ample computational power, masking the performance differences between these languages.
+- **Complexity of Real-World Needs**: Real-world projects depend not only on computational performance but also on ecosystem, development speed, maintainability, and community support.
+- **Task Nature**: While these tests cover common scenarios, they may not fully represent the demands of specific domains like real-time systems or embedded development.
+
+### The Outlier: Python
+
+Python’s performance and multi-threading capabilities clearly lag behind the other languages. This is due to its design philosophy prioritizing readability and development efficiency over high performance or concurrency. While libraries like NumPy, Cython, or multiprocessing can optimize specific tasks, Python’s overall performance in such benchmarks remains a limitation.
 
 ## How to Run the Tests
 
@@ -103,9 +122,9 @@ To execute the tests for each language, run the following commands:
    ./rust_benchmark/target/release/rust_benchmark
    ```
 
-6. **All at Once (using Make):**
+6. **Python:**
    ```bash
-   make all
+   python main.py
    ```
 
 ---

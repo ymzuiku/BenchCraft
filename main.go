@@ -3,12 +3,15 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"math"
-	"os"
 	"runtime"
 	"sync"
+	"io/ioutil"
+	"os"
 	"time"
+	"strings"
+	"sort"
+	"math/rand"
 )
 
 // 打印内存使用
@@ -64,16 +67,17 @@ func multiThreadTest(iterations, threadCount int) {
 }
 
 // 执行任务逻辑
+
 func executeTask(i int) {
-	// 1. 复杂循环中的非线性运算
-	result := 0.0
+	// 1. 数学计算任务
+	mathResult := 0.0
 	for j := 1; j <= 100; j++ {
-		result += math.Sqrt(float64(j)) + math.Sin(float64(j))*math.Cos(float64(j)) + math.Log(float64(j)+1)/math.Tan(float64(j)+0.1)
-		result *= math.Exp(math.Mod(-float64(j), 5)) + math.Atan(float64(j)/10.0)
+		mathResult += math.Sqrt(float64(j)) + math.Pow(float64(j), 1.8) + math.Sin(float64(j))*math.Cos(float64(j))
+		mathResult *= math.Exp(-float64(j)/100.0) + math.Tan(float64(j)/50.0)
 	}
 
-	// 2. 模拟矩阵计算 (100x100 矩阵乘法)
-	size := 100
+	// 2. 大规模矩阵运算 (500x500)
+	size := 200
 	matrixA := make([][]float64, size)
 	matrixB := make([][]float64, size)
 	matrixResult := make([][]float64, size)
@@ -82,11 +86,10 @@ func executeTask(i int) {
 		matrixB[x] = make([]float64, size)
 		matrixResult[x] = make([]float64, size)
 		for y := 0; y < size; y++ {
-			matrixA[x][y] = math.Sin(float64(x + y))
-			matrixB[x][y] = math.Cos(float64(x - y))
+			matrixA[x][y] = math.Sin(float64(x+y)) * math.Cos(float64(x-y))
+			matrixB[x][y] = math.Exp(-float64(x*y)/500.0) + math.Tan(float64(y+1))
 		}
 	}
-
 	for x := 0; x < size; x++ {
 		for y := 0; y < size; y++ {
 			for k := 0; k < size; k++ {
@@ -95,52 +98,66 @@ func executeTask(i int) {
 		}
 	}
 
-	// 3. 高级数学函数组合 (复杂表达式)
-	specialResult := 0.0
-	for j := 1; j <= 50; j++ {
-		specialResult += math.Sqrt(float64(j)) * math.Sin(float64(j)) * math.Log10(float64(j)+1) + math.Exp(-float64(j))*math.Cos(math.Tan(float64(j)))
+	// 3. 字符串拼接与处理
+	var sb strings.Builder
+	for j := 0; j < 500; j++ {
+		sb.WriteString(fmt.Sprintf("Task-%d-Line-%d;", i, j))
+	}
+	largeString := sb.String()
+	processedString := strings.ReplaceAll(largeString, "Line", "ProcessedLine")
+
+	// 4. 集合操作
+	dataSet := make(map[int]struct{})
+	for j := 0; j < 500; j++ {
+		dataSet[j] = struct{}{}
+	}
+	// 查询数据
+	for j := 0; j < 500; j++ {
+		_, _ = dataSet[j]
 	}
 
-	// 4. JSON 处理
+	// 5. 排序与查找
+	array := make([]int, 200)
+	for j := 0; j < len(array); j++ {
+		array[j] = rand.Intn(1000000)
+	}
+	sort.Ints(array) // 排序
+
+	// 二分查找
+	target := rand.Intn(1000000)
+	_ = sort.Search(len(array), func(idx int) bool {
+		return array[idx] >= target
+	})
+
+	// 6. JSON 处理
 	jsonObject := map[string]interface{}{
 		"Id":   i,
-		"Name": fmt.Sprintf("Test-%d", i),
-		"Data": map[string]interface{}{
-			"MatrixSum": specialResult,
-			"Result":    result,
-			"Details": []map[string]interface{}{
-				{"Index": 1, "Value": matrixResult[0][0]},
-				{"Index": 2, "Value": matrixResult[1][1]},
-			},
+		"MathResult": mathResult,
+		"MatrixSample": []float64{
+			matrixResult[0][0], matrixResult[1][1], matrixResult[2][2],
 		},
-		"AdditionalData": []map[string]interface{}{},
+		"ProcessedString": processedString[:100],
 	}
+	jsonData, _ := json.Marshal(jsonObject)
 
-	for k := 0; k < 30; k++ {
-		jsonObject["AdditionalData"] = append(jsonObject["AdditionalData"].([]map[string]interface{}), map[string]interface{}{
-			"Index": k,
-			"Value": k * 2,
-		})
-	}
+	// 7. 文件操作
+	fileName := fmt.Sprintf("task_output_%d.json", i)
+	_ = ioutil.WriteFile(fileName, jsonData, 0644) // 写入文件
 
-	jsonString, _ := json.Marshal(jsonObject)
-	var deserializedObject map[string]interface{}
-	_ = json.Unmarshal(jsonString, &deserializedObject)
+	// 读取文件内容
+	fileContent, _ := ioutil.ReadFile(fileName)
 
-	// 5. 文件操作测试
-	fileName := fmt.Sprintf("temp_file_%d.json", i)
-	_ = ioutil.WriteFile(fileName, jsonString, 0644) // 写入文件
-	fileContent, _ := ioutil.ReadFile(fileName)     // 读取文件
-	_ = os.Remove(fileName)                         // 删除文件
+	// 删除文件
+	_ = os.Remove(fileName)
 
-	// 解析文件内容，模拟处理
-	var fileData map[string]interface{}
-	_ = json.Unmarshal(fileContent, &fileData)
+	// 解析文件内容
+	var parsedObject map[string]interface{}
+	_ = json.Unmarshal(fileContent, &parsedObject)
 }
 
 func main() {
-	const iterations = 30  // 每个线程的任务数
-	const threadCount = 50 // 线程数
+	const iterations = 20  // 每个线程的任务数
+	const threadCount = 20 // 线程数
 
 	fmt.Println("Running single-threaded test...")
 	singleThreadTest(iterations, threadCount)
