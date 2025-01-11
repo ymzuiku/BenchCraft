@@ -19,7 +19,11 @@ This test evaluates the performance of each language by running computationally 
    - Combines multiple mathematical operations into a single complex expression to test floating-point precision and processing speed.
 
 4. **JSON Serialization and Deserialization:**
+
    - Tests JSON handling by creating a structured object, serializing it to a JSON string, and then deserializing it back to an object.
+
+5. **File Operations:**
+   - Tests file operations by writing to a file, reading from it, and deleting it.
 
 Each test is executed in both single-threaded and multi-threaded (or event-driven) scenarios to compare the efficiency of different concurrency models.
 
@@ -40,12 +44,13 @@ Task count: 30, Thread count: 50
 
 Windows 10, CPU: AMD Ryzen 9 9950X, RAM: 96GB
 
-| Language | Version                | Single-threaded Output | Multi-threaded/Event-driven Output |
-| -------- | ---------------------- | ---------------------- | ---------------------------------- |
-| Go       | go1.23.4 windows/amd64 | 2950 ms                | 349 ms                             |
-| C#       | 9.0.101                | 3212 ms                | 258 ms                             |
-| Bun.js   | 1.1.43                 | 3947 ms                | 3956 ms                            |
-| Node.js  | v23.5.0                | 4876 ms                | 4901 ms                            |
+| Language | Version                       | Single-threaded Output | Multi-threaded/Event-driven Output |
+| -------- | ----------------------------- | ---------------------- | ---------------------------------- |
+| Go       | go1.23.4 windows/amd64        | 4138 ms                | 411 ms                             |
+| C#       | 9.0.101                       | 4326 ms                | 345 ms                             |
+| Bun.js   | 1.1.43                        | 5135 ms                | 5038 ms                            |
+| Node.js  | v23.5.0                       | 5982 ms                | 5995 ms                            |
+| Rust     | 1.84.0 (9fc6b4312 2025-01-07) | 6487 ms                | 500 ms                             |
 
 ## Important Notes on Node.js
 
@@ -82,7 +87,14 @@ To execute the tests for each language, run the following commands:
    dotnet Bench\bin\Release\net9.0\Bench.dll
    ```
 
-5. **All at Once (using Make):**
+5. **Rust:**
+
+   ```bash
+   cd rust_benchmark && cargo build --release
+   ./rust_benchmark/target/release/rust_benchmark
+   ```
+
+6. **All at Once (using Make):**
    ```bash
    make all
    ```

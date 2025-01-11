@@ -1,12 +1,16 @@
 package main
 
+
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"math"
+	"os"
 	"sync"
 	"time"
 )
+
 
 // 单线程执行
 func singleThreadTest(iterations, threadCount int) {
@@ -81,7 +85,6 @@ func executeTask(i int) {
 	}
 
 	// 4. JSON 处理
-	// 创建 JSON 对象
 	jsonObject := map[string]interface{}{
 		"Id":   i,
 		"Name": fmt.Sprintf("Test-%d", i),
@@ -96,7 +99,6 @@ func executeTask(i int) {
 		"AdditionalData": []map[string]interface{}{},
 	}
 
-	// 添加大数组到 AdditionalData
 	for k := 0; k < 30; k++ {
 		jsonObject["AdditionalData"] = append(jsonObject["AdditionalData"].([]map[string]interface{}), map[string]interface{}{
 			"Index": k,
@@ -104,12 +106,19 @@ func executeTask(i int) {
 		})
 	}
 
-	// 序列化为字符串
 	jsonString, _ := json.Marshal(jsonObject)
-
-	// 反序列化回对象
 	var deserializedObject map[string]interface{}
 	_ = json.Unmarshal(jsonString, &deserializedObject)
+
+	// 5. 文件操作测试
+	fileName := fmt.Sprintf("temp_file_%d.json", i)
+	_ = ioutil.WriteFile(fileName, jsonString, 0644) // 写入文件
+	fileContent, _ := ioutil.ReadFile(fileName)     // 读取文件
+	_ = os.Remove(fileName)                         // 删除文件
+
+	// 解析文件内容，模拟处理
+	var fileData map[string]interface{}
+	_ = json.Unmarshal(fileContent, &fileData)
 }
 
 func main() {

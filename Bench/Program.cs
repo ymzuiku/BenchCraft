@@ -66,7 +66,7 @@ class Program
             result *= Math.Exp(-j % 5) + Math.Atan(j / 10.0);
         }
 
-        // 2. 模拟矩阵计算 (100x100 矩阵乘法)
+        // 2. 模拟矩阵计算
         int size = 100;
         double[,] matrixA = new double[size, size];
         double[,] matrixB = new double[size, size];
@@ -92,7 +92,7 @@ class Program
             }
         }
 
-        // 3. 高级数学函数组合 (复杂表达式)
+        // 3. 高级数学函数组合
         double specialResult = 0.0;
         for (int j = 1; j <= 50; j++)
         {
@@ -110,9 +110,9 @@ class Program
                 Result = result,
                 Details = new[]
                 {
-                    new { Index = 1, Value = matrixResult[0, 0] },
-                    new { Index = 2, Value = matrixResult[1, 1] }
-                }
+                new { Index = 1, Value = matrixResult[0, 0] },
+                new { Index = 2, Value = matrixResult[1, 1] }
+            }
             },
             AdditionalData = new object[30]
         };
@@ -122,10 +122,22 @@ class Program
             jsonObject.AdditionalData[k] = new { Index = k, Value = k * 2 };
         }
 
-        // 序列化为字符串
         string jsonString = JsonSerializer.Serialize(jsonObject);
 
-        // 反序列化回对象
-        var deserializedObject = JsonSerializer.Deserialize<object>(jsonString);
+        // 5. 文件操作
+        string fileName = $"temp_file_{i}_{Task.CurrentId}.json"; // 加入线程唯一标识
+
+        // 写入文件
+        File.WriteAllText(fileName, jsonString);
+
+        // 读取文件
+        string fileContent = File.ReadAllText(fileName);
+
+        // 删除文件
+        File.Delete(fileName);
+
+        // 解析文件内容
+        var fileData = JsonSerializer.Deserialize<object>(fileContent);
     }
+
 }

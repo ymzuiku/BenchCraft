@@ -1,3 +1,4 @@
+const fs = require("fs");
 const crypto = require("crypto");
 
 // 执行任务逻辑
@@ -39,7 +40,6 @@ function executeTask(i) {
   }
 
   // 4. JSON 处理
-  // 创建 JSON 对象
   const jsonObject = {
     Id: i,
     Name: `Test-${i}`,
@@ -54,7 +54,6 @@ function executeTask(i) {
     AdditionalData: [],
   };
 
-  // 添加大数组到 AdditionalData
   for (let k = 0; k < 30; k++) {
     jsonObject.AdditionalData.push({
       Index: k,
@@ -62,11 +61,25 @@ function executeTask(i) {
     });
   }
 
-  // 序列化为字符串
   const jsonString = JSON.stringify(jsonObject);
 
   // 反序列化回对象
   JSON.parse(jsonString);
+
+  // 5. 文件操作测试
+  const fileName = `temp_file_${i}.json`;
+
+  // 写入文件
+  fs.writeFileSync(fileName, jsonString, "utf-8");
+
+  // 读取文件
+  const fileContent = fs.readFileSync(fileName, "utf-8");
+
+  // 删除文件
+  fs.unlinkSync(fileName);
+
+  // 解析文件内容，模拟处理
+  const fileData = JSON.parse(fileContent);
 }
 
 // 单线程执行

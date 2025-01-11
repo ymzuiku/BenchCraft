@@ -1,0 +1,19 @@
+[package]
+name = "rust_benchmark"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+
+[profile.release]
+opt-level = 3     # 默认是3，已经是最高优化级别
+lto = true        # 启用链接时间优化 (Link Time Optimization)
+codegen-units = 1 # 使用单线程进行代码生成，优化最终性能
+panic = "abort"   # 减小 panic 开销（不会生成 unwinding 代码）
+
+
+[build]
+rustflags = ["-C", "target-cpu=native"]

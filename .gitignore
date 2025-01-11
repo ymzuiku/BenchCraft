@@ -11,3 +11,5 @@
 **/vscode
 **/node_modules
 **/*.exe
+rust_benchmark/target
+.DS_Store
