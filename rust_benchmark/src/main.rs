@@ -1,6 +1,6 @@
+use rayon::prelude::*;
+use serde_json::json;
 use std::fs;
-use std::f64;
-use std::thread;
 use std::time::Instant;
 
 // 执行任务逻辑
@@ -16,21 +16,18 @@ fn execute_task(i: usize) {
 
     // 2. 模拟矩阵计算 (100x100 矩阵乘法)
     let size = 100;
-    let mut matrix_a = vec![vec![0.0; size]; size];
-    let mut matrix_b = vec![vec![0.0; size]; size];
-    let mut matrix_result = vec![vec![0.0; size]; size];
-
-    for x in 0..size {
-        for y in 0..size {
-            matrix_a[x][y] = (x + y) as f64;
-            matrix_b[x][y] = (x - y) as f64;
-        }
-    }
+    let matrix_a: Vec<f64> = (0..size * size)
+        .map(|x| ((x / size + x % size) as f64).sin())
+        .collect();
+    let matrix_b: Vec<f64> = (0..size * size)
+        .map(|x| ((x / size - x % size) as f64).cos())
+        .collect();
+    let mut matrix_result = vec![0.0; size * size];
 
     for x in 0..size {
         for y in 0..size {
             for k in 0..size {
-                matrix_result[x][y] += matrix_a[x][k] * matrix_b[k][y];
+                matrix_result[x * size + y] += matrix_a[x * size + k] * matrix_b[k * size + y];
             }
         }
     }
@@ -43,26 +40,20 @@ fn execute_task(i: usize) {
     }
 
     // 4. JSON 处理
-    let json_object = serde_json::json!({
+    let json_object = json!({
         "Id": i,
         "Name": format!("Test-{}", i),
         "Data": {
             "MatrixSum": special_result,
             "Result": result,
             "Details": [
-                { "Index": 1, "Value": matrix_result[0][0] },
-                { "Index": 2, "Value": matrix_result[1][1] }
+                { "Index": 1, "Value": matrix_result[0] },
+                { "Index": 2, "Value": matrix_result[1] }
             ]
         },
-        "AdditionalData": (0..30).map(|k| {
-            serde_json::json!({
-                "Index": k,
-                "Value": k * 2
-            })
-        }).collect::<Vec<_>>()
+        "AdditionalData": (0..30).map(|k| json!({ "Index": k, "Value": k * 2 })).collect::<Vec<_>>()
     });
 
-    // 序列化为字符串
     let json_string = serde_json::to_string(&json_object).unwrap();
 
     // 文件操作
@@ -95,20 +86,11 @@ fn single_thread_test(iterations: usize, thread_count: usize) {
 fn multi_thread_test(iterations: usize, thread_count: usize) {
     let start = Instant::now();
 
-    let handles: Vec<_> = (0..thread_count)
-        .map(|thread_index| {
-            let iterations = iterations;
-            thread::spawn(move || {
-                for i in 0..iterations {
-                    execute_task(thread_index * iterations + i);
-                }
-            })
-        })
-        .collect();
-
-    for handle in handles {
-        handle.join().unwrap();
-    }
+    (0..thread_count).into_par_iter().for_each(|thread_index| {
+        for i in 0..iterations {
+            execute_task(thread_index * iterations + i);
+        }
+    });
 
     println!(
         "Multi-threaded computation time: {:.2} ms",

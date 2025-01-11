@@ -44,13 +44,14 @@ Task count: 30, Thread count: 50
 
 Windows 10, CPU: AMD Ryzen 9 9950X, RAM: 96GB
 
-| Language | Version                       | Single-threaded Output | Multi-threaded/Event-driven Output |
-| -------- | ----------------------------- | ---------------------- | ---------------------------------- |
-| Go       | go1.23.4 windows/amd64        | 4138 ms                | 411 ms                             |
-| C#       | 9.0.101                       | 4326 ms                | 345 ms                             |
-| Bun.js   | 1.1.43                        | 5135 ms                | 5038 ms                            |
-| Node.js  | v23.5.0                       | 5982 ms                | 5995 ms                            |
-| Rust     | 1.84.0 (9fc6b4312 2025-01-07) | 6487 ms                | 500 ms                             |
+| Language | Version                | Single-threaded Output | Multi-threaded/Event-driven Output |
+| -------- | ---------------------- | ---------------------- | ---------------------------------- |
+| Go       | go1.23.4 windows/amd64 | 4138 ms                | 411 ms                             |
+| C#       | 9.0.101                | 4326 ms                | 345 ms                             |
+| Bun.js   | 1.1.43                 | 5135 ms                | 5038 ms                            |
+| Node.js  | v23.5.0                | 5982 ms                | 5995 ms                            |
+| Rust     | rustc 1.84.0           | 6487 ms                | 500 ms                             |
+| Rust     | rustc 1.84.0 + rayon   | 6203 ms                | 459 ms                             |
 
 ## Important Notes on Node.js
 

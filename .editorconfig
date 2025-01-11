@@ -1,0 +1,2 @@
+[*.cs]
+csharp_space_after_closing_brace = false
