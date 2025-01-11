@@ -1,19 +1,33 @@
 package main
 
-
 import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"math"
 	"os"
+	"runtime"
 	"sync"
 	"time"
 )
 
+// 打印内存使用
+func printMemoryUsage(label string) {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	fmt.Printf("%s Memory Usage: Alloc = %.2f MB, TotalAlloc = %.2f MB, Sys = %.2f MB, NumGC = %d\n",
+		label,
+		float64(m.Alloc)/1024/1024,
+		float64(m.TotalAlloc)/1024/1024,
+		float64(m.Sys)/1024/1024,
+		m.NumGC,
+	)
+}
 
 // 单线程执行
 func singleThreadTest(iterations, threadCount int) {
+	printMemoryUsage("Before Single-threaded Test")
 	startTime := time.Now()
 
 	for threadIndex := 0; threadIndex < threadCount; threadIndex++ {
@@ -24,10 +38,12 @@ func singleThreadTest(iterations, threadCount int) {
 
 	endTime := time.Now()
 	fmt.Printf("Single-threaded computation time: %.2f ms\n", endTime.Sub(startTime).Seconds()*1000)
+	printMemoryUsage("After Single-threaded Test")
 }
 
 // 多线程执行
 func multiThreadTest(iterations, threadCount int) {
+	printMemoryUsage("Before Multi-threaded Test")
 	startTime := time.Now()
 
 	var wg sync.WaitGroup
@@ -44,6 +60,7 @@ func multiThreadTest(iterations, threadCount int) {
 	wg.Wait()
 	endTime := time.Now()
 	fmt.Printf("Multi-threaded computation time: %.2f ms\n", endTime.Sub(startTime).Seconds()*1000)
+	printMemoryUsage("After Multi-threaded Test")
 }
 
 // 执行任务逻辑
@@ -123,7 +140,7 @@ func executeTask(i int) {
 
 func main() {
 	const iterations = 30  // 每个线程的任务数
-	const threadCount = 50   // 线程数
+	const threadCount = 50 // 线程数
 
 	fmt.Println("Running single-threaded test...")
 	singleThreadTest(iterations, threadCount)

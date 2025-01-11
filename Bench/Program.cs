@@ -6,13 +6,27 @@ class Program
     static void Main(string[] args)
     {
         const int iterations = 30; // 每个线程的任务数
-        const int threadCount = 50;  // 线程数
+        const int threadCount = 50; // 线程数
 
         Console.WriteLine("Running single-threaded test...");
+        PrintMemoryAndGC("Before Single-threaded Test");
         SingleThreadTest(iterations, threadCount);
+        PrintMemoryAndGC("After Single-threaded Test");
 
         Console.WriteLine("\nRunning multi-threaded test...");
+        PrintMemoryAndGC("Before Multi-threaded Test");
         MultiThreadTest(iterations, threadCount);
+        PrintMemoryAndGC("After Multi-threaded Test");
+    }
+
+    // 打印内存使用和垃圾回收次数
+    static void PrintMemoryAndGC(string label)
+    {
+        Process currentProcess = Process.GetCurrentProcess();
+        long memorySize = currentProcess.WorkingSet64; // 获取进程的物理内存使用
+
+        Console.WriteLine($"{label} Memory Usage: {memorySize / 1024.0 / 1024.0:F2} MB");
+        Console.WriteLine($"{label} GC Counts: Gen0 = {GC.CollectionCount(0)}, Gen1 = {GC.CollectionCount(1)}, Gen2 = {GC.CollectionCount(2)}");
     }
 
     // 单线程执行
@@ -125,7 +139,7 @@ class Program
         string jsonString = JsonSerializer.Serialize(jsonObject);
 
         // 5. 文件操作
-        string fileName = $"temp_file_{i}_{Task.CurrentId}.json"; // 加入线程唯一标识
+        string fileName = $"temp_file_{i}_{Task.CurrentId}.json";
 
         // 写入文件
         File.WriteAllText(fileName, jsonString);
@@ -139,5 +153,4 @@ class Program
         // 解析文件内容
         var fileData = JsonSerializer.Deserialize<object>(fileContent);
     }
-
 }

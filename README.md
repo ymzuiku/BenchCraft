@@ -38,20 +38,20 @@ Each test is executed in both single-threaded and multi-threaded (or event-drive
 Task count: 30, Thread count: 50
 
 - For Go and C#, tasks are executed in parallel using native multithreading mechanisms (e.g., Goroutines in Go, `Task.Run` in C#).
-- For Bun.js and Node.js, concurrency is simulated using asynchronous programming (event loop). Node.js is not natively multithreaded but uses an event-driven, non-blocking I/O model.
+- For Bun.js and Node.js, use worker_threads to simulate multithreading.
+- For Rust, use tokio to simulate multithreading.
 
 ## Commands and Outputs
 
 Windows 10, CPU: AMD Ryzen 9 9950X, RAM: 96GB
 
-| Language | Version                | Single-threaded Output | Multi-threaded/Event-driven Output |
-| -------- | ---------------------- | ---------------------- | ---------------------------------- |
-| Go       | go1.23.4 windows/amd64 | 4138 ms                | 411 ms                             |
-| C#       | 9.0.101                | 4326 ms                | 345 ms                             |
-| Bun.js   | 1.1.43                 | 5135 ms                | 5038 ms                            |
-| Node.js  | v23.5.0                | 5982 ms                | 5995 ms                            |
-| Rust     | rustc 1.84.0           | 6487 ms                | 500 ms                             |
-| Rust     | rustc 1.84.0 + rayon   | 6203 ms                | 459 ms                             |
+| Language | Version                | Single-threaded/Memory | Multi-threaded/Memory | GC Count |
+| -------- | ---------------------- | ---------------------- | --------------------- | -------- |
+| C#       | 9.0.101                | 4326 ms, 50 MB         | 345 ms, 60 MB         | 46       |
+| Go       | go1.23.4 windows/amd64 | 4138 ms, 11.89 MB      | 429 ms, 45 MB         | 150      |
+| Rust     | rustc 1.84.0 + tokio   | 5848 ms, 33.86 MB      | 444 ms, 33.88 MB      | 0        |
+| Node.js  | v23.5.0                | 6030 ms, 73 MB         | 866 ms, 104 MB        | ?        |
+| Bun.js   | 1.1.43                 | 5135 ms, 37 MB         | 1644 ms, 37 MB        | ?        |
 
 ## Important Notes on Node.js
 
