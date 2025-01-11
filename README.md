@@ -43,7 +43,7 @@ Task count: 30, Thread count: 50
 
 ## Commands and Outputs
 
-Windows 10, CPU: AMD Ryzen 9 9950X, RAM: 96GB
+Windows 11, CPU: AMD Ryzen 9 9950X, RAM: 96GB
 
 | Language | Version                | Single-threaded/Memory | Multi-threaded/Memory | GC Count |
 | -------- | ---------------------- | ---------------------- | --------------------- | -------- |
