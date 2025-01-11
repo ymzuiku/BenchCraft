@@ -1,0 +1,13 @@
+**/*.log
+**/bin
+**/obj
+**/out
+**/packages
+**/publish
+**/publishprofiles
+**/run
+**/runsettings
+**/testresults
+**/vscode
+**/node_modules
+**/*.exe
