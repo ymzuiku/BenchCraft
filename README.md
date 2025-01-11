@@ -1,10 +1,10 @@
-# Performance Test for Go, Bun, Node.js, and C#
+# Performance Test for Go, Bun.js, Node.js, Rust, and C#
 
-This performance test compares the execution time of computationally intensive tasks across four programming environments: Go, Bun.js, Node.js, and C#. The test includes both single-threaded and multi-threaded (or simulated concurrency) scenarios to observe the efficiency and runtime behavior of each language.
+This performance test evaluates the execution time and resource utilization of computationally intensive tasks across five programming environments: Go, Bun.js, Node.js, Rust, and C#. It examines both single-threaded and multi-threaded (or simulated concurrency) scenarios to compare the efficiency, runtime behavior, and memory usage of each language.
 
 ## Test Description
 
-This test evaluates the performance of each language by running computationally intensive tasks involving:
+The test includes tasks designed to stress the CPU, memory, and concurrency models of each environment. Key benchmarks include:
 
 1. **Complex Mathematical Calculations:**
 
@@ -27,23 +27,28 @@ This test evaluates the performance of each language by running computationally 
 
 Each test is executed in both single-threaded and multi-threaded (or event-driven) scenarios to compare the efficiency of different concurrency models.
 
-### Single-threaded Test
+### Execution Modes
 
-150 times of tasks
+#### Single-threaded Test
 
-- Executes tasks sequentially within a single thread for a fixed number of iterations and threads.
+Executes tasks sequentially within a single thread for 150 iterations.
 
-### Multi-threaded Test
+#### Multi-threaded Test
 
-Task count: 30, Thread count: 50
+Simulates 30 tasks across 50 threads to evaluate the efficiency of parallel execution:
 
-- For Go and C#, tasks are executed in parallel using native multithreading mechanisms (e.g., Goroutines in Go, `Task.Run` in C#).
-- For Bun.js and Node.js, use worker_threads to simulate multithreading.
-- For Rust, use tokio to simulate multithreading.
+- Go and C#: Use native multithreading (Goroutines in Go, Task.Run in C#).
+- Rust: Utilizes the Tokio runtime for concurrency.
+- Node.js and Bun.js: Employ worker threads to simulate multithreading.
 
-## Commands and Outputs
+## Performance Results
 
-Windows 11, CPU: AMD Ryzen 9 9950X, RAM: 96GB
+### Environment
+
+Operating System: Windows 11
+Hardware: AMD Ryzen 9 9950X CPU, 96GB RAM
+
+### Commands and Outputs
 
 | Language | Version                | Single-threaded/Memory | Multi-threaded/Memory | GC Count |
 | -------- | ---------------------- | ---------------------- | --------------------- | -------- |
@@ -53,10 +58,13 @@ Windows 11, CPU: AMD Ryzen 9 9950X, RAM: 96GB
 | Node.js  | v23.5.0                | 6030 ms, 73 MB         | 866 ms, 104 MB        | ?        |
 | Bun.js   | 1.1.43                 | 5135 ms, 37 MB         | 1644 ms, 37 MB        | ?        |
 
-## Important Notes on Node.js
+### Observations
 
-- Node.js is **not natively multithreaded**. Instead, it uses an **event loop** and asynchronous I/O to handle concurrent tasks efficiently. While this model allows high-performance non-blocking operations, it is fundamentally different from true multithreading as implemented in Go or C#.
-- For computationally intensive tasks, the Node.js event loop may appear slower compared to true multithreading due to the lack of parallel CPU execution.
+- C#: Exhibited exceptional multi-threaded performance with the lowest execution time in multi-threaded tasks.
+- Go: Delivered consistent performance with low memory usage and efficient garbage collection.
+- Rust: Despite its reputation for high performance, Rust's results in release mode were not as competitive as expected in this benchmark. This could be due to the nature of the test tasks, the overhead of the Tokio runtime, or differences in optimization for these specific workloads.
+- Node.js: As an event-driven, single-threaded runtime, Node.js lags in computational tasks due to limited parallel execution.
+- Bun.js: Demonstrated improved single-threaded performance over Node.js, but multi-threading performance is less optimized compared to Go or C#.
 
 ## How to Run the Tests
 
@@ -100,6 +108,6 @@ To execute the tests for each language, run the following commands:
    make all
    ```
 
-## Results
+---
 
-After running the tests, fill in the execution times in the table above to compare the performance across languages.
+This version integrates the updated information from the table and refines the structure for readability and clarity. Let me know if you need further adjustments!
