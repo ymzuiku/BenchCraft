@@ -5,6 +5,13 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <PublishAot>false</PublishAot>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+  </ItemGroup>
 
 </Project>

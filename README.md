@@ -52,9 +52,10 @@ Hardware: AMD Ryzen 9 9950X CPU, 96GB RAM
 
 | Language | Version                | Single-threaded/Memory | Multi-threaded/Memory |
 | -------- | ---------------------- | ---------------------- | --------------------- |
-| C#       | 9.0.101                | 7429 ms, 34 MB         | 632 ms, 77 MB         |
-| Go       | go1.23.4 windows/amd64 | 7301 ms, 11.89 MB      | 649 ms, 56 MB         |
+| C# + AOT | 9.0.101                | 6898 ms, 28 MB         | 520 ms, 74 MB         |
+| C#       | 9.0.101                | 6906 ms, 34 MB         | 522 ms, 77 MB         |
 | Rust     | rustc 1.84.0 + tokio   | 7505 ms, 35 MB         | 542 ms, 35 MB         |
+| Go       | go1.23.4 windows/amd64 | 7301 ms, 11.89 MB      | 649 ms, 56 MB         |
 | Node.js  | v23.5.0                | 8885 ms, 73 MB         | 905 ms, 82 MB         |
 | Bun.js   | 1.1.43                 | 7850 ms, 189 MB        | 1398 ms, 914 MB       |
 | Python   | Python 3.12.8          | 95084 ms, 22 MB        | 95267 ms, 54 MB       |
