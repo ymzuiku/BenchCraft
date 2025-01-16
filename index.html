@@ -7,9 +7,15 @@
   </head>
   <body>
     <h1>Improved Task Execution with Web Worker</h1>
+    <div id="device-info"></div>
     <div id="output"></div>
 
     <script>
+      const deviceInfo = navigator.userAgent;
+      document.getElementById(
+        "device-info"
+      ).innerHTML = `Device Info: ${deviceInfo}`;
+
       // 打印内存使用
       function printMemoryUsage(label) {
         const memoryUsage = window.performance.memory || {};
