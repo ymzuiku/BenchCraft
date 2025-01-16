@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <InvariantGlobalization>true</InvariantGlobalization>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
-    <PublishAot>false</PublishAot>
+
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task Executor</title>
+  </head>
+  <body>
+    <h1>Task Execution Test</h1>
+    <div id="output"></div>
+
+    <script>
+      // 打印内存使用
+      function printMemoryUsage(label) {
+        const memoryUsage = window.performance.memory || {};
+        const usedJSHeap = (memoryUsage.usedJSHeapSize || 0) / (1024 * 1024);
+        const totalJSHeap = (memoryUsage.totalJSHeapSize || 0) / (1024 * 1024);
+        document.getElementById(
+          "output"
+        ).innerHTML += `${label} Memory Usage: ${usedJSHeap.toFixed(
+          2
+        )} MB / ${totalJSHeap.toFixed(2)} MB<br>`;
+      }
+
+      // 执行任务逻辑
+      function executeTask(id) {
+        // 1. 数学计算任务
+        let mathResult = 0.0;
+        for (let j = 1; j <= 100; j++) {
+          mathResult +=
+            Math.sqrt(j) + Math.pow(j, 1.8) + Math.sin(j) * Math.cos(j);
+          mathResult *= Math.exp(-j / 100.0) + Math.tan(j / 50.0);
+        }
+
+        // 2. 大规模矩阵运算 (200x200)
+        const size = 200;
+        const matrixA = Array.from({ length: size }, () => Array(size).fill(0));
+        const matrixB = Array.from({ length: size }, () => Array(size).fill(0));
+        const matrixResult = Array.from({ length: size }, () =>
+          Array(size).fill(0)
+        );
+        for (let x = 0; x < size; x++) {
+          for (let y = 0; y < size; y++) {
+            matrixA[x][y] = Math.sin(x + y) * Math.cos(x - y);
+            matrixB[x][y] = Math.exp(-(x * y) / 500.0) + Math.tan(y + 1);
+          }
+        }
+        for (let x = 0; x < size; x++) {
+          for (let y = 0; y < size; y++) {
+            for (let k = 0; k < size; k++) {
+              matrixResult[x][y] += matrixA[x][k] * matrixB[k][y];
+            }
+          }
+        }
+
+        // 3. 字符串拼接与处理
+        let largeString = "";
+        for (let j = 0; j < 500; j++) {
+          largeString += `Task-${id}-Line-${j};`;
+        }
+        const processedString = largeString.replace(/Line/g, "ProcessedLine");
+
+        // 4. 集合操作
+        const dataSet = new Set();
+        for (let j = 0; j < 500; j++) {
+          dataSet.add(j);
+        }
+        for (let j = 0; j < 500; j++) {
+          dataSet.has(j);
+        }
+
+        // 5. 排序与查找
+        const array = Array.from({ length: 200 }, () =>
+          Math.floor(Math.random() * 1000000)
+        );
+        array.sort((a, b) => a - b);
+        const target = Math.floor(Math.random() * 1000000);
+        array.findIndex((value) => value >= target);
+
+        // 6. JSON 处理
+        const jsonObject = {
+          Id: id,
+          MathResult: mathResult,
+          MatrixSample: [
+            matrixResult[0][0],
+            matrixResult[1][1],
+            matrixResult[2][2],
+          ],
+          ProcessedString: processedString.slice(0, 100),
+        };
+        const jsonData = JSON.stringify(jsonObject);
+
+        // 显示输出
+        // document.getElementById(
+        //   "output"
+        // ).innerHTML += `Task-${id} completed.<br>`;
+        // document.getElementById(
+        //   "output"
+        // ).innerHTML += `Result: ${jsonData.slice(0, 200)}...<br>`;
+      }
+
+      // 执行任务
+      function executeTasks(iterations, taskCount) {
+        printMemoryUsage("Before Test");
+
+        const startTime = Date.now();
+        for (let taskIndex = 0; taskIndex < taskCount; taskIndex++) {
+          for (let i = 0; i < iterations; i++) {
+            executeTask(i);
+          }
+        }
+
+        const endTime = Date.now();
+        document.getElementById("output").innerHTML += `Computation time: ${
+          endTime - startTime
+        } ms<br>`;
+        printMemoryUsage("After Test");
+      }
+
+      // 主执行逻辑
+      const iterations = 20; // 每个任务的迭代次数
+      const taskCount = 20; // 任务数
+
+      // 开始执行任务
+      executeTasks(iterations, taskCount);
+    </script>
+  </body>
+</html>

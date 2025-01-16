@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Improved Task Execution with Web Worker</title>
+  </head>
+  <body>
+    <h1>Improved Task Execution with Web Worker</h1>
+    <div id="output"></div>
+
+    <script>
+      // 打印内存使用
+      function printMemoryUsage(label) {
+        const memoryUsage = window.performance.memory || {};
+        const usedJSHeap = (memoryUsage.usedJSHeapSize || 0) / (1024 * 1024);
+        const totalJSHeap = (memoryUsage.totalJSHeapSize || 0) / (1024 * 1024);
+        document.getElementById(
+          "output"
+        ).innerHTML += `${label} Memory Usage: ${usedJSHeap.toFixed(
+          2
+        )} MB / ${totalJSHeap.toFixed(2)} MB<br>`;
+      }
+
+      // 创建 Web Worker
+      function createWorker(iterations, taskId) {
+        return new Promise((resolve, reject) => {
+          const workerCode = `
+          onmessage = function(event) {
+            const { iterations, taskId } = event.data;
+
+            function executeTask(id) {
+              let mathResult = 0.0;
+              for (let j = 1; j <= 100; j++) {
+                mathResult +=
+                  Math.sqrt(j) + Math.pow(j, 1.8) + Math.sin(j) * Math.cos(j);
+                mathResult *= Math.exp(-j / 100.0) + Math.tan(j / 50.0);
+              }
+
+              const size = 200;
+              const matrixA = Array.from({ length: size }, () => Array(size).fill(0));
+              const matrixB = Array.from({ length: size }, () => Array(size).fill(0));
+              const matrixResult = Array.from({ length: size }, () =>
+                Array(size).fill(0)
+              );
+              for (let x = 0; x < size; x++) {
+                for (let y = 0; y < size; y++) {
+                  matrixA[x][y] = Math.sin(x + y) * Math.cos(x - y);
+                  matrixB[x][y] = Math.exp(-(x * y) / 500.0) + Math.tan(y + 1);
+                }
+              }
+              for (let x = 0; x < size; x++) {
+                for (let y = 0; y < size; y++) {
+                  for (let k = 0; k < size; k++) {
+                    matrixResult[x][y] += matrixA[x][k] * matrixB[k][y];
+                  }
+                }
+              }
+
+              let largeString = "";
+              for (let j = 0; j < 500; j++) {
+                largeString += \`Task-\${id}-Line-\${j};\`;
+              }
+              const processedString = largeString.replace(/Line/g, "ProcessedLine");
+
+              const dataSet = new Set();
+              for (let j = 0; j < 500; j++) {
+                dataSet.add(j);
+              }
+              for (let j = 0; j < 500; j++) {
+                dataSet.has(j);
+              }
+
+              const array = Array.from({ length: 200 }, () =>
+                Math.floor(Math.random() * 1000000)
+              );
+              array.sort((a, b) => a - b);
+              const target = Math.floor(Math.random() * 1000000);
+              array.findIndex((value) => value >= target);
+
+              const jsonObject = {
+                Id: id,
+                MathResult: mathResult,
+                MatrixSample: [
+                  matrixResult[0][0],
+                  matrixResult[1][1],
+                  matrixResult[2][2],
+                ],
+                ProcessedString: processedString.slice(0, 100),
+              };
+
+              return JSON.stringify(jsonObject);
+            }
+
+            let results = [];
+            for (let i = 0; i < iterations; i++) {
+              results.push(executeTask(taskId * iterations + i));
+            }
+            postMessage(results);
+          }
+          `;
+
+          const blob = new Blob([workerCode], {
+            type: "application/javascript",
+          });
+          const worker = new Worker(URL.createObjectURL(blob));
+
+          worker.onmessage = (event) => resolve(event.data);
+          worker.onerror = (error) => reject(error);
+
+          worker.postMessage({ iterations, taskId });
+        });
+      }
+
+      // 执行多线程任务
+      async function executeTasks(iterations, taskCount) {
+        printMemoryUsage("Before Test");
+
+        const startTime = Date.now();
+
+        const promises = [];
+        for (let taskIndex = 0; taskIndex < taskCount; taskIndex++) {
+          promises.push(createWorker(iterations, taskIndex));
+        }
+
+        try {
+          const allResults = await Promise.all(promises);
+          const endTime = Date.now();
+
+          document.getElementById("output").innerHTML += `Computation time: ${
+            endTime - startTime
+          } ms<br>`;
+          printMemoryUsage("After Test");
+        } catch (error) {
+          console.error("Error during worker execution:", error);
+        }
+      }
+
+      // 主执行逻辑
+      const iterations = 20; // 每个任务的迭代次数
+      const taskCount = 20; // 任务数
+
+      // 开始执行任务
+      executeTasks(iterations, taskCount);
+    </script>
+  </body>
+</html>

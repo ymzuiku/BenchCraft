@@ -79,8 +79,9 @@ function executeTask(id) {
   const jsonData = JSON.stringify(jsonObject);
 
   // 7. 文件操作
-  const fileName = `task_output_${id}.json`;
+  const fileName = `task_ouatput_${id}.json`;
   fs.writeFileSync(fileName, jsonData);
+
   const fileContent = fs.readFileSync(fileName, "utf8");
   fs.unlinkSync(fileName);
   JSON.parse(fileContent);

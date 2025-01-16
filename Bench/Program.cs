@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using System.Text.Json;
 
 class Program
 {
@@ -123,78 +124,29 @@ class Program
         }
 
         // 5. 排序与查找
-        Random random = new Random(id); // 使用 ID 作为种子，避免线程间冲突
+        Random random = new Random();
         List<int> array = Enumerable.Range(0, 200).Select(_ => random.Next(0, 1_000_000)).ToList();
         array.Sort();
         int target = random.Next(0, 1_000_000);
         int index = array.BinarySearch(target);
 
-        // 6. 手动序列化替代 JSON
-        var serializedData = SerializeObject(new SerializableData
+        // 6. JSON 处理
+        var jsonObject = new
         {
             Id = id,
             MathResult = mathResult,
             MatrixSample = new[] { matrixResult[0, 0], matrixResult[1, 1], matrixResult[2, 2] },
             ProcessedString = processedString.Substring(0, Math.Min(processedString.Length, 100))
-        });
+        };
+        string jsonData = JsonSerializer.Serialize(jsonObject);
 
-        // 7. 模拟文件操作 (改用内存流，避免文件系统依赖)
-        using (var memoryStream = new MemoryStream())
-        {
-            using (var writer = new StreamWriter(memoryStream))
-            {
-                writer.Write(serializedData);
-                writer.Flush();
+        // 7. 文件操作
+        string fileName = $"task_output_{id}.json";
+        File.WriteAllText(fileName, jsonData);
 
-                memoryStream.Position = 0;
-                using (var reader = new StreamReader(memoryStream))
-                {
-                    string fileContent = reader.ReadToEnd();
-                    var deserializedObject = DeserializeObject<SerializableData>(fileContent);
-                }
-            }
-        }
-    }
+        string fileContent = File.ReadAllText(fileName);
+        File.Delete(fileName);
 
-    static string SerializeObject(SerializableData data)
-    {
-        return $"Id={data.Id};MathResult={data.MathResult};MatrixSample={string.Join(",", data.MatrixSample ?? Array.Empty<double>())};ProcessedString={data.ProcessedString}";
-    }
-
-    static T DeserializeObject<T>(string serializedData) where T : SerializableData, new()
-    {
-        var data = new T();
-        var keyValuePairs = serializedData.Split(';', StringSplitOptions.RemoveEmptyEntries);
-        foreach (var pair in keyValuePairs)
-        {
-            var keyValue = pair.Split('=');
-            if (keyValue.Length == 2)
-            {
-                switch (keyValue[0])
-                {
-                    case "Id":
-                        data.Id = int.Parse(keyValue[1]);
-                        break;
-                    case "MathResult":
-                        data.MathResult = double.Parse(keyValue[1]);
-                        break;
-                    case "MatrixSample":
-                        data.MatrixSample = keyValue[1].Split(',').Select(double.Parse).ToArray();
-                        break;
-                    case "ProcessedString":
-                        data.ProcessedString = keyValue[1];
-                        break;
-                }
-            }
-        }
-        return data;
-    }
-
-    public class SerializableData
-    {
-        public int Id { get; set; }
-        public double MathResult { get; set; }
-        public double[]? MatrixSample { get; set; }
-        public string? ProcessedString { get; set; }
+        var parsedObject = JsonSerializer.Deserialize<object>(fileContent);
     }
 }
